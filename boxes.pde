@@ -1,48 +1,50 @@
-float aspect;
 int depth, oldDepth;
 color[][] colors;
-boolean drawFlag;
+int ticker;
 
 void setup() {
-  size(1024, 1024);
-  aspect = width / height;
+  size(1000, 1000);
   background(0);
   noStroke();
-  fill(102);
   frameRate(30);
-  depth = 10;
-  drawFlag = false;
+  
+  depth = 8;
   oldDepth = depth;
+  ticker = 0;
   colors = new color[depth][depth];
   updateColors();
 }
 
 void draw() {  
-   if(frameCount % 240 == 0){
-    // updateColors();
-   }
-
-  if(drawFlag){
-    rectangleFill(depth, 0, 0, width, height, colors);
-    drawFlag = false;
-  } else if(frameCount % 5 == 0){
-    rectangleFill(depth, 0, 0, width, height, colors);
+  if(frameCount % 5 == 0){
+    clear();
+    ticker++;
+    rectangleFill(depth);
   }
-
 }
 
-void rectangleFill(int currDepth, int x, int y, float w, float h, color[][] colors){
-  if(currDepth == 1){
-    //System.out.println(x + " " + y + " " + h + " " + w);
-    fill(colors[int(currDepth + frameCount + (x / w)) % depth][int(currDepth + frameCount + (y / h)) % depth]);
-    rect(x, y, w, h);
-  } else {
-    rectangleFill(currDepth - 1, x, y, w / 2, h / 2, colors);
-    rectangleFill(currDepth - 1, int(x + (w / 2)), y, w / 2, h / 2, colors);
-    rectangleFill(currDepth - 1, x, int(y + (w / 2)), w / 2, h / 2, colors);
-    rectangleFill(currDepth - 1, int(x + (w / 2)), int(y + (w / 2)), w / 2, h / 2, colors);
+void rectangleFill(int depth){
+  int boxCount = int(pow(2, depth));
+  
+  float boxSide = max(float(width) / boxCount, float(height) / boxCount);
+  System.out.println(boxSide);
+  int xColorIndex = 0;
+  int yColorIndex = 0;
+  System.out.println(boxCount + " " + boxSide + " " + boxCount * boxSide);
+  for(int i = 0; i < boxCount; i++){
+    for(int j = 0; j < boxCount; j++){
+      if(xColorIndex == depth) xColorIndex = 0;
+      if(yColorIndex == depth) yColorIndex = 0;
+      
+      
+      
+      
+      fill(colors[int(xColorIndex + ticker) % depth][int(yColorIndex + ticker) % depth]);
+      rect(boxSide * i, boxSide * j, boxSide, boxSide);
+      xColorIndex++;
+    }
+    yColorIndex++;
   }
-
 }
 
 void updateColors(){
@@ -55,10 +57,9 @@ void updateColors(){
 
 void keyPressed(){
   int keyNum = (key - 48);
-  drawFlag = true;
-  if(keyNum > 0 && keyNum < 10){
+  if(keyNum > 0 && keyNum < 9){
     depth = keyNum;
-    //System.out.println(depth);
+    ticker++;
   } else {
     updateColors();
   }
